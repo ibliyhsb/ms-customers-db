@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import cl.duoc.ms_customers_db.model.dto.CustomerDto;
 import cl.duoc.ms_customers_db.model.entities.Customer;
 import cl.duoc.ms_customers_db.service.CustomerService;
 
@@ -37,12 +38,12 @@ public class CustomerController {
     
 
     @GetMapping()
-    public List<Customer> selectAllCustomer() {
+    public List<CustomerDto> selectAllCustomer() {
         return customerService.selectAllCustomer();
     }
     
     @GetMapping("GetCustomerById/{idCustomer}")
-    public Customer getCustomerById(@PathVariable("idCustomer") Long idCustomer) {
+    public CustomerDto getCustomerById(@PathVariable("idCustomer") Long idCustomer) {
         return customerService.getCustomerById(idCustomer);
     }
 
