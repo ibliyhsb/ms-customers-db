@@ -19,7 +19,7 @@ import lombok.ToString;
 
 public class CustomerDto {
 
-    @JsonProperty(value = "customer_id")
+    @JsonProperty(value = "id_customer")
      private Long idCustomer;
 
     @JsonProperty(value = "username")

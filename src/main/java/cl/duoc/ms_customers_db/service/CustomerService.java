@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import cl.duoc.ms_customers_db.model.dto.CustomerDto;
@@ -83,41 +85,103 @@ public class CustomerService {
     }
 
 
-    public boolean authenticateCustomer(CustomerDto customerDto){//TRAER PARAMETROS O EL DTO?
-
-        Customer customer = new Customer();
-        customer = translateDtoToEntity(customerDto);
-
-        Optional<Customer> customerOp = customerRepository.findByUsername(customer.getUsername());
-        if(customerOp.isPresent() && customerOp.get().getPassword().equals(customer.getPassword()))
+    public boolean authenticateCustomer(String username, String password){
+        Optional<Customer> customer = customerRepository.findByUsername(username);
+        if(customer.isPresent() && customer.get().getPassword().equals(password))
             return true;
         else
             return false;
     }
 
 
-    public Customer insertCustomer(CustomerDto customerDto){
+    public ResponseEntity<String> insertCustomer(CustomerDto customerDto){
 
-        Customer newCustomer = translateDtoToEntity(customerDto);
-        customerRepository.save(newCustomer);
+        Optional<Customer> customerUsername = customerRepository.findByUsername(customerDto.getUsername());
+        Optional<Customer> customerEmail = customerRepository.findByEmail(customerDto.getEmail());
+        
+        if(customerUsername.isPresent() && customerEmail.isPresent()){
 
-        return newCustomer;
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("The username and the email do already exists.");
+        }
+        
+        else if(customerUsername.isPresent()){
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("This username does already exists.");
+        }
+
+        else if(customerEmail.isPresent()){
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("This email does already exists.");
+        }
+
+        else{
+
+            Customer newCustomer = translateDtoToEntity(customerDto);
+            customerRepository.save(newCustomer);
+
+            return ResponseEntity.ok("Customer created.");}
     }
 
-    public String deleteCustomer(Long idCustomer){//TRAER PARAMETROS O EL DTO?
-
+    public ResponseEntity<String> deleteCustomer(Long idCustomer){
+        
+        Optional<Customer> customer = customerRepository.findById(idCustomer);
+        if(customer.isPresent()){
         customerRepository.deleteById(idCustomer);
-        return "Customer deleted";
+        return ResponseEntity.ok("Customer with ID: "+ idCustomer + " was deleted.");}
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The customer with ID: " + idCustomer + " does not exist.");
+        }
     }
 
-    public Customer updateCustomer(CustomerDto customerDto){ //TRAER PARAMETROS O EL DTO?
+    public ResponseEntity<String> updateCustomer(CustomerDto customerDto){
 
-        Customer newCustomer = translateDtoToEntity(customerDto);
-        customerRepository.save(newCustomer);
-
-        return newCustomer;
+        Optional<Customer> customer = customerRepository.findById(customerDto.getIdCustomer());
+        if (customer.isPresent()){
+            Customer updatedCustomer = customer.get();
+            if(updatedCustomer.getUsername().equals(customerDto.getUsername())){
+                updatedCustomer.setPassword(customerDto.getPassword());
+                updatedCustomer.setName(customerDto.getName());
+                updatedCustomer.setLastName(customerDto.getLastName());
+                updatedCustomer.setEmail(customerDto.getEmail());
+                customerRepository.save(updatedCustomer);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("This username does already exists, updated data: \n"
+                                                                                                         + "Password: " 
+                                                                                                         + updatedCustomer.getPassword() 
+                                                                                                         + "\n" 
+                                                                                                         + "Name: "
+                                                                                                         +  updatedCustomer.getName() 
+                                                                                                         + "\n" 
+                                                                                                         + "Last name: "
+                                                                                                         + updatedCustomer.getLastName() 
+                                                                                                         +  "\n" 
+                                                                                                         + "Email: " 
+                                                                                                         + updatedCustomer.getEmail());
+                                                                                                                                        }  
+            else {
+                updatedCustomer.setUsername(customerDto.getUsername());
+                updatedCustomer.setPassword(customerDto.getPassword());
+                updatedCustomer.setName(customerDto.getName());
+                updatedCustomer.setLastName(customerDto.getLastName());
+                updatedCustomer.setEmail(customerDto.getEmail());
+                customerRepository.save(updatedCustomer);
+                return ResponseEntity.ok("Customer updated: \n"
+                                         + "Username: " 
+                                         + updatedCustomer.getUsername() 
+                                         + "\n" 
+                                         + "Password: " 
+                                         + updatedCustomer.getPassword() 
+                                         + "\n" 
+                                         + "Name: " 
+                                         +  updatedCustomer.getName() 
+                                         + "\n" 
+                                         + "Last name: " 
+                                         + updatedCustomer.getLastName() 
+                                         +  "\n" 
+                                         + "Email: " 
+                                         + updatedCustomer.getEmail());}
+        }
+            else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The customer cannot be updated because it does not exist.");
+        }
     }
-
-
-    
 }

@@ -11,5 +11,7 @@ import cl.duoc.ms_customers_db.model.entities.Customer;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     Optional<Customer> findByUsername(String username);
+
+    Optional<Customer> findByEmail(String email);
     
 }
