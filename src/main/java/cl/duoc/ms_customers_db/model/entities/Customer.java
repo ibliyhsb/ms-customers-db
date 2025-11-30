@@ -44,7 +44,7 @@ public class Customer {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
         name = "customer_roles",
-        joinColumns = @JoinColumn(name = "customer_id"),
+        joinColumns = @JoinColumn(name = "id_customer"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
