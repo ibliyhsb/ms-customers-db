@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import cl.duoc.ms_customers_db.model.dto.CustomerDto;
+import cl.duoc.ms_customers_db.model.dto.LoginDto;
 
 import cl.duoc.ms_customers_db.service.CustomerService;
 
@@ -27,9 +28,10 @@ public class CustomerController {
     @Autowired
     CustomerService customerService;
 
-    @GetMapping("/authenticate/{username}/{password}")
-    public boolean authenticateCustomer(@PathVariable("username") String username, @PathVariable("password") String password) {
-        return customerService.authenticateCustomer(username, password);
+    @PostMapping("/authenticate")
+    public ResponseEntity<Boolean> authenticateCustomer(@RequestBody LoginDto loginDto) {
+        boolean isAuthenticated = customerService.authenticateCustomer(loginDto.getEmail(), loginDto.getPassword());
+        return ResponseEntity.ok(isAuthenticated);
     }
     
 

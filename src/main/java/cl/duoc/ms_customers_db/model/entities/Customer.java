@@ -30,13 +30,11 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_customer")
     private Long idCustomer;
-    @Column(name = "username", unique = true)
-    private String username;
     @Column(name = "password")
     private String password;
-    @Column(name = "name")
+    @Column(name = "nombre")
     private String name;
-    @Column(name = "last_name")
+    @Column(name = "apellidos")
     private String lastName;
     @Column(name = "email", unique = true)
     private String email;

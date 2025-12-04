@@ -24,7 +24,6 @@ public class CustomerService {
 
         CustomerDto customerDto = new CustomerDto();
         customerDto.setIdCustomer(customer.getIdCustomer());
-        customerDto.setUsername(customer.getUsername());
         customerDto.setPassword(customer.getPassword());
         customerDto.setName(customer.getName());
         customerDto.setLastName(customer.getLastName());
@@ -52,7 +51,6 @@ public class CustomerService {
         for(Customer cust: customer){
             customerDto = new CustomerDto();
             customerDto.setIdCustomer(cust.getIdCustomer());
-            customerDto.setUsername(cust.getUsername());
             customerDto.setPassword(cust.getPassword());
             customerDto.setName(cust.getName());
             customerDto.setLastName(cust.getLastName());
@@ -75,7 +73,6 @@ public class CustomerService {
 
         Customer customer = new Customer();
         customer.setIdCustomer(customerDto.getIdCustomer());
-        customer.setUsername(customerDto.getUsername());
         customer.setPassword(customerDto.getPassword());
         customer.setName(customerDto.getName());
         customer.setLastName(customerDto.getLastName());
@@ -85,8 +82,8 @@ public class CustomerService {
     }
 
 
-    public boolean authenticateCustomer(String username, String password){
-        Optional<Customer> customer = customerRepository.findByUsername(username);
+    public boolean authenticateCustomer(String email, String password){
+        Optional<Customer> customer = customerRepository.findByEmail(email);
         if(customer.isPresent() && customer.get().getPassword().equals(password))
             return true;
         else
@@ -96,20 +93,9 @@ public class CustomerService {
 
     public ResponseEntity<String> insertCustomer(CustomerDto customerDto){
 
-        Optional<Customer> customerUsername = customerRepository.findByUsername(customerDto.getUsername());
         Optional<Customer> customerEmail = customerRepository.findByEmail(customerDto.getEmail());
         
-        if(customerUsername.isPresent() && customerEmail.isPresent()){
-
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("The username and the email do already exists.");
-        }
-        
-        else if(customerUsername.isPresent()){
-
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("This username does already exists.");
-        }
-
-        else if(customerEmail.isPresent()){
+        if(customerEmail.isPresent()){
 
             return ResponseEntity.status(HttpStatus.CONFLICT).body("This email does already exists.");
         }
@@ -135,7 +121,6 @@ public class CustomerService {
 
     public ResponseEntity<String> updateCustomer(CustomerDto customerDto){
 
-        Optional<Customer> customerUsername = customerRepository.findByUsername(customerDto.getUsername());
         Optional<Customer> customerId = customerRepository.findById(customerDto.getIdCustomer());
         Optional<Customer> customerEmail = customerRepository.findByEmail(customerDto.getEmail());
 
@@ -145,12 +130,12 @@ public class CustomerService {
 
         Customer updatedCustomer = customerId.get();
 
-        if (customerUsername.isPresent() && customerEmail.isPresent()){
+        if (customerEmail.isPresent() && !customerEmail.get().getIdCustomer().equals(customerDto.getIdCustomer())){
                 updatedCustomer.setPassword(customerDto.getPassword());
                 updatedCustomer.setName(customerDto.getName());
                 updatedCustomer.setLastName(customerDto.getLastName());
                 customerRepository.save(updatedCustomer);
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("This email and username do already exists, updated data: \n"
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("This email already exists, updated data: \n"
                                                                                                          + "Password: " 
                                                                                                          + updatedCustomer.getPassword() 
                                                                                                          + "\n" 
@@ -161,59 +146,13 @@ public class CustomerService {
                                                                                                          + updatedCustomer.getLastName());
             }
 
-        else if (customerUsername.isPresent()){
-                updatedCustomer.setPassword(customerDto.getPassword());
-                updatedCustomer.setName(customerDto.getName());
-                updatedCustomer.setLastName(customerDto.getLastName());
-                updatedCustomer.setEmail(customerDto.getEmail());
-                customerRepository.save(updatedCustomer);
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("This username does already exist, updated data: \n"
-                                                                                                         + "Password: " 
-                                                                                                         + updatedCustomer.getPassword() 
-                                                                                                         + "\n" 
-                                                                                                         + "Name: "
-                                                                                                         +  updatedCustomer.getName() 
-                                                                                                         + "\n" 
-                                                                                                         + "Last name: "
-                                                                                                         + updatedCustomer.getLastName() 
-                                                                                                         +  "\n" 
-                                                                                                         + "Email: " 
-                                                                                                         + updatedCustomer.getEmail());
-                                                                                                                                        }  
-        else if (customerEmail.isPresent()){
-                updatedCustomer.setPassword(customerDto.getPassword());
-                updatedCustomer.setName(customerDto.getName());
-                updatedCustomer.setLastName(customerDto.getLastName());
-                updatedCustomer.setUsername(customerDto.getUsername());
-                customerRepository.save(updatedCustomer);
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("This email does already exist, updated data: \n"
-                                                                                                         + "username: "
-                                                                                                         + updatedCustomer.getUsername()
-                                                                                                         + "\n"
-                                                                                                         + "Password: " 
-                                                                                                         + updatedCustomer.getPassword() 
-                                                                                                         + "\n" 
-                                                                                                         + "Name: "
-                                                                                                         +  updatedCustomer.getName() 
-                                                                                                         + "\n" 
-                                                                                                         + "Last name: "
-                                                                                                         + updatedCustomer.getLastName());
-                                                                                                         
-                                                                                                      
-            }
-
-
-            else{
-                updatedCustomer.setUsername(customerDto.getUsername());
+        else{
                 updatedCustomer.setPassword(customerDto.getPassword());
                 updatedCustomer.setName(customerDto.getName());
                 updatedCustomer.setLastName(customerDto.getLastName());
                 updatedCustomer.setEmail(customerDto.getEmail());
                 customerRepository.save(updatedCustomer);
                 return ResponseEntity.ok("Customer updated: \n"
-                                         + "Username: " 
-                                         + updatedCustomer.getUsername() 
-                                         + "\n" 
                                          + "Password: " 
                                          + updatedCustomer.getPassword() 
                                          + "\n" 
