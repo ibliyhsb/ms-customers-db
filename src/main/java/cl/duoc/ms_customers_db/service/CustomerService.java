@@ -32,6 +32,20 @@ public class CustomerService {
         return customerDto;
     }
 
+    public CustomerDto getCustomerByEmail(String email) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
+
+        CustomerDto customerDto = new CustomerDto();
+        customerDto.setIdCustomer(customer.getIdCustomer());
+        customerDto.setPassword(customer.getPassword());
+        customerDto.setName(customer.getName());
+        customerDto.setLastName(customer.getLastName());
+        customerDto.setEmail(customer.getEmail());
+
+        return customerDto;
+    }
+
     public CustomerDto getCustomerById(Long idCustomer){
 
         Optional<Customer> customer = customerRepository.findById(idCustomer);

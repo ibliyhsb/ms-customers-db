@@ -45,6 +45,11 @@ public class CustomerController {
         return customerService.getCustomerById(idCustomer);
     }
 
+    @GetMapping("/GetCustomerByEmail/{email}")
+    public CustomerDto getCustomerByEmail(@PathVariable("email") String email) {
+        return customerService.getCustomerByEmail(email);
+    }
+
     @PostMapping()
     public ResponseEntity<String> insertCustomer(@RequestBody CustomerDto customerDto) {
         return customerService.insertCustomer(customerDto);
